@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TenderAssist — AI находит тендеры, которые вы выигрываете</title>
+<meta name="description" content="ИИ-агент мониторит goszakup, Самрук-Казыну и MITWORK 24/7, читает ТЗ полностью и присылает в почту только тендеры, которые подходят вашей компании. 1.5 часа ручной работы каждый день экономии.">
+<style>
+  :root {
+    --primary: #0b5fbf;
+    --primary-dark: #084a8e;
+    --accent: #10b981;
+    --accent-dark: #047857;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #111827;
+    --text-secondary: #4b5563;
+    --muted: #9ca3af;
+    --bg: #ffffff;
+    --bg-soft: #f9fafb;
+    --bg-card: #ffffff;
+    --border: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    color: var(--text);
+    line-height: 1.55;
+    background: var(--bg);
+  }
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  a { color: var(--primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* HEADER */
+  header { padding: 18px 0; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); z-index: 50; }
+  header .container { display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+  .logo-mark { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 700; }
+  nav a { color: var(--text-secondary); margin-left: 28px; font-size: 14px; }
+  .btn { display: inline-block; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: all .15s; cursor: pointer; border: none; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); text-decoration: none; }
+  .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); text-decoration: none; }
+
+  /* HERO */
+  .hero { padding: 80px 0 64px; text-align: center; background: radial-gradient(ellipse at top, #eaf2fd 0%, transparent 60%); }
+  .hero-badge { display: inline-block; padding: 6px 12px; border-radius: 999px; background: #eaf2fd; color: var(--primary); font-size: 12px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 20px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 700; line-height: 1.1; margin: 0 0 20px; letter-spacing: -0.02em; }
+  .hero h1 .accent { background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { font-size: clamp(16px, 2vw, 19px); color: var(--text-secondary); max-width: 720px; margin: 0 auto 32px; }
+  .hero .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero .btn { padding: 14px 24px; font-size: 15px; }
+
+  /* STATS */
+  .stats { padding: 32px 0; background: var(--bg-soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center; }
+  .stat-num { font-size: 32px; font-weight: 700; color: var(--primary); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 6px; }
+  @media (max-width: 720px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* SECTION */
+  section.s { padding: 80px 0; }
+  section.s.alt { background: var(--bg-soft); }
+  h2.s-title { font-size: clamp(26px, 3.4vw, 36px); font-weight: 700; margin: 0 0 12px; letter-spacing: -0.01em; text-align: center; }
+  p.s-sub { color: var(--text-secondary); text-align: center; max-width: 640px; margin: 0 auto 48px; font-size: 16px; }
+
+  /* PROBLEM */
+  .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .problem-card { padding: 24px; border-radius: 12px; background: #fff; border: 1px solid var(--border); }
+  .problem-card .ico { font-size: 24px; margin-bottom: 12px; }
+  .problem-card h3 { margin: 0 0 8px; font-size: 17px; }
+  .problem-card p { margin: 0; color: var(--text-secondary); font-size: 14px; }
+  @media (max-width: 720px) { .problem-grid { grid-template-columns: 1fr; } }
+
+  /* HOW */
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .how-step { padding: 24px; }
+  .how-step .num { display: inline-flex; width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; margin-bottom: 16px; }
+  .how-step h3 { font-size: 18px; margin: 0 0 8px; }
+  .how-step p { color: var(--text-secondary); font-size: 14px; margin: 0; }
+  @media (max-width: 720px) { .how-grid { grid-template-columns: 1fr; } }
+
+  /* FEATURES */
+  .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .feature { display: flex; gap: 16px; padding: 24px; border-radius: 12px; background: #fff; border: 1px solid var(--border); }
+  .feature .ico { flex-shrink: 0; width: 44px; height: 44px; border-radius: 10px; background: #eaf2fd; color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .feature h3 { font-size: 16px; margin: 0 0 6px; }
+  .feature p { color: var(--text-secondary); font-size: 14px; margin: 0; }
+  @media (max-width: 720px) { .features-grid { grid-template-columns: 1fr; } }
+
+  /* COMPARISON */
+  table.cmp { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,0.04); }
+  table.cmp th, table.cmp td { padding: 14px 18px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+  table.cmp th { background: var(--bg-soft); font-weight: 600; }
+  table.cmp tr:last-child td { border-bottom: none; }
+  table.cmp .yes { color: var(--accent-dark); font-weight: 600; }
+  table.cmp .no { color: var(--muted); }
+  @media (max-width: 720px) { table.cmp { font-size: 13px; } table.cmp th, table.cmp td { padding: 10px 12px; } }
+
+  /* CASE STUDY */
+  .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .case { padding: 28px; border-radius: 16px; background: linear-gradient(135deg, #ffffff, #f4f7fc); border: 1px solid var(--border); }
+  .case .label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--primary); }
+  .case .title { font-size: 18px; font-weight: 600; margin: 8px 0; }
+  .case .meta { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+  .case .amount { font-size: 28px; font-weight: 700; color: var(--accent-dark); line-height: 1; }
+  .case .amount-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  @media (max-width: 720px) { .case-grid { grid-template-columns: 1fr; } }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .price-card { padding: 28px; border-radius: 16px; background: #fff; border: 1px solid var(--border); display: flex; flex-direction: column; }
+  .price-card.featured { border: 2px solid var(--primary); position: relative; }
+  .price-card.featured::before { content: "Популярный"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .price-card .plan { font-size: 13px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; }
+  .price-card .amount { font-size: 36px; font-weight: 700; line-height: 1; }
+  .price-card .period { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .price-card .desc { margin: 16px 0; color: var(--text-secondary); font-size: 14px; }
+  .price-card ul { list-style: none; padding: 0; margin: 0 0 24px; flex-grow: 1; }
+  .price-card li { padding: 6px 0; font-size: 14px; display: flex; align-items: start; gap: 8px; }
+  .price-card li::before { content: "✓"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .price-card li.dash::before { content: "—"; color: var(--muted); }
+  @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+  /* CTA BANNER */
+  .cta-banner { padding: 56px 32px; border-radius: 20px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; text-align: center; }
+  .cta-banner h2 { font-size: clamp(24px, 3vw, 34px); margin: 0 0 12px; color: #fff; }
+  .cta-banner p { opacity: 0.92; max-width: 540px; margin: 0 auto 24px; }
+  .cta-banner .btn { background: #fff; color: var(--primary); padding: 14px 28px; font-size: 15px; }
+  .cta-banner .btn:hover { background: #f4f7fc; }
+
+  /* FAQ */
+  .faq { max-width: 760px; margin: 0 auto; }
+  details { padding: 18px 20px; border-radius: 12px; background: #fff; border: 1px solid var(--border); margin-bottom: 10px; cursor: pointer; }
+  details[open] { border-color: var(--primary); }
+  summary { font-weight: 600; font-size: 15px; list-style: none; display: flex; justify-content: space-between; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; color: var(--muted); font-size: 22px; }
+  details[open] summary::after { content: "−"; }
+  details p { margin: 12px 0 0; color: var(--text-secondary); font-size: 14px; }
+
+  /* FOOTER */
+  footer { padding: 40px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="container">
+    <div class="logo">
+      <span class="logo-mark">T</span>
+      TenderAssist
+    </div>
+    <nav>
+      <a href="#how">Как работает</a>
+      <a href="#features">Возможности</a>
+      <a href="#pricing">Цены</a>
+      <a href="#cta" class="btn btn-primary" style="padding: 8px 16px;">Демо</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">AI для тендер-менеджеров РК</div>
+    <h1>Не пропускайте <span class="accent">«ваш» тендер</span> в потоке из 7 000+ в день</h1>
+    <p class="lead">
+      ИИ читает ТЗ казахстанских тендеров полностью, сопоставляет с портфелем вашей компании
+      и каждое утро присылает в почту только те лоты, где у вас реальный шанс выиграть.
+      Без шума. Без ключевых слов.
+    </p>
+    <div class="ctas">
+      <a href="#cta" class="btn btn-primary">Получить демо-дайджест бесплатно</a>
+      <a href="#how" class="btn btn-outline">Как это работает →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div>
+        <div class="stat-num">7–9K</div>
+        <div class="stat-label">новых тендеров публикуется в РК каждый день</div>
+      </div>
+      <div>
+        <div class="stat-num">2 трлн ₸</div>
+        <div class="stat-label">общая сумма закупок за январь–февраль 2026</div>
+      </div>
+      <div>
+        <div class="stat-num">4–7 дней</div>
+        <div class="stat-label">типичное окно подачи заявки</div>
+      </div>
+      <div>
+        <div class="stat-num">1,5–2 ч</div>
+        <div class="stat-label">ручной мониторинг каждый день минимум</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="s">
+  <div class="container">
+    <h2 class="s-title">Знакомо?</h2>
+    <p class="s-sub">
+      Если вы тендер-менеджер или директор IT-компании в Казахстане — вы уже сталкивались с этими тремя проблемами каждую неделю.
+    </p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="ico">⏰</div>
+        <h3>Тонете в шуме</h3>
+        <p>Открываете 5–6 площадок каждое утро, читаете заголовки тендеров, пытаетесь решить «наш / не наш». 80% времени уходит на отсев мусора.</p>
+      </div>
+      <div class="problem-card">
+        <div class="ico">🎯</div>
+        <h3>Пропускаете «свои»</h3>
+        <p>Лот, который идеально подходит вашей компании, проходит мимо, потому что в заголовке нет ваших ключевых слов. А внутри ТЗ — точно ваше.</p>
+      </div>
+      <div class="problem-card">
+        <div class="ico">📉</div>
+        <h3>Не успеваете подать</h3>
+        <p>Тендер опубликован в понедельник, заметили в четверг, на качественную заявку остался один день. Конкуренты, заметившие раньше, уже готовят.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="s alt" id="how">
+  <div class="container">
+    <h2 class="s-title">Как работает TenderAssist</h2>
+    <p class="s-sub">
+      Три слоя «понимания» вместо одного. Это даёт нам в 5–10 раз меньше шума, чем у систем поиска по ключевым словам.
+    </p>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="num">1</div>
+        <h3>Сбор каждый час</h3>
+        <p>Мониторим goszakup.gov.kz, Самрук-Казыну, MITWORK и др. площадки 24/7. За ночь видим всё, что объявили вчера.</p>
+      </div>
+      <div class="how-step">
+        <div class="num">2</div>
+        <h3>AI-чтение ТЗ</h3>
+        <p>ИИ читает технические задания целиком, понимает смысл, отделяет наше от чужого. Знает ваш профиль: услуги, опыт, ограничения (например, нужен ли ISO 27001).</p>
+      </div>
+      <div class="how-step">
+        <div class="num">3</div>
+        <h3>Email в 08:30</h3>
+        <p>Утром получаете дайджест: топ-10 релевантных тендеров с объяснением «почему подходит», ссылками и кнопками «беру / не беру». Система учится на ваших действиях.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="s" id="features">
+  <div class="container">
+    <h2 class="s-title">Что делает TenderAssist умнее ключевого поиска</h2>
+    <p class="s-sub">
+      Шесть встроенных слоёв логики, которых нет ни у одного существующего сервиса в Казахстане.
+    </p>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="ico">📚</div>
+        <div>
+          <h3>Профиль компании, а не ключевые слова</h3>
+          <p>ИИ знает ваши услуги, выигранные тендеры, размер команды и сертификаты. Сопоставляет тендер с вашим реальным портфелем.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="ico">🚫</div>
+        <div>
+          <h3>Hard blockers</h3>
+          <p>Тендер требует ISO 27001, а у вас его нет → автоматически отсеивается. Не тратите час, читая ТЗ, чтобы понять что не подходите.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="ico">⚠️</div>
+        <div>
+          <h3>Domain warnings</h3>
+          <p>Лот формально подходит, но требует доменной экспертизы, которой у вас нет (банковский core, биллинг). Помечаем ⚠️ и понижаем приоритет.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="ico">🏆</div>
+        <div>
+          <h3>Partnership barriers</h3>
+          <p>В ТЗ требуется статус AWS Partner / Microsoft Partner и т.п.? Это барьер для конкурентов и плюс для вас. Поднимаем приоритет.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="ico">🎯</div>
+        <div>
+          <h3>«Тендер под кого-то?»</h3>
+          <p>ИИ умеет распознавать признаки «заточки» под конкретного поставщика (слишком узкие требования, короткие сроки, специфические формулировки). Сэкономит вам недели бесполезной подготовки.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="ico">📊</div>
+        <div>
+          <h3>Конкурентная карта</h3>
+          <p>Видите кто, в каких категориях и на каких заказчиках выигрывает больше всех. Понимаете, где ваши настоящие конкуренты и где свободные ниши.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="s alt">
+  <div class="container">
+    <h2 class="s-title">TenderAssist vs обычные тендерные сервисы</h2>
+    <p class="s-sub">Сравнение с тем, как работают goszakup.gov.kz, агрегаторы и Telegram-боты.</p>
+    <table class="cmp">
+      <thead>
+        <tr>
+          <th>Что умеет</th>
+          <th>Обычные сервисы</th>
+          <th>TenderAssist</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Поиск по ключевым словам</td>
+          <td class="yes">✓</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Чтение ТЗ целиком, не только заголовка</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Сопоставление со списком ваших услуг</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Учёт ваших ограничений (ISO, лицензии)</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Объяснение «почему этот тендер ваш»</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Анализ конкурентов в категории</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Распознавание «заточенных» тендеров</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+        <tr>
+          <td>Самообучение на вашем feedback</td>
+          <td class="no">✗</td>
+          <td class="yes">✓</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CASE STUDY / PATTERNS -->
+<section class="s">
+  <div class="container">
+    <h2 class="s-title">Какие тендеры мы умеем находить</h2>
+    <p class="s-sub">Три типичных паттерна, на которых TenderAssist даёт максимум ценности — там, где обычный поиск по ключевым словам теряет лоты.</p>
+    <div class="case-grid" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="case">
+        <div class="label">Cloud Reselling · обычно score 85–95</div>
+        <div class="title">Поставка облачных ресурсов и подписок</div>
+        <div class="meta">Квазигоссектор / банки · 30–150 млн ₸</div>
+        <div class="amount">↑ paртнёрский статус</div>
+        <div class="amount-label">даёт преимущество в квалификации</div>
+      </div>
+      <div class="case">
+        <div class="label">AI / Computer Vision · обычно score 90–100</div>
+        <div class="title">Внедрение AI-решений и видеоаналитики</div>
+        <div class="meta">Госсектор / производство · 20–80 млн ₸</div>
+        <div class="amount">↑ узкая ниша</div>
+        <div class="amount-label">конкуренция слабая, маржа высокая</div>
+      </div>
+      <div class="case">
+        <div class="label">DevOps / Migration · обычно score 70–85</div>
+        <div class="title">Миграция инфраструктуры и CI/CD-платформы</div>
+        <div class="meta">EdTech / финтех / телеком · 50–200 млн ₸</div>
+        <div class="amount">↑ многолетние</div>
+        <div class="amount-label">контракты с поддержкой</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (max-width: 900px) { section.s .case-grid { grid-template-columns: 1fr !important; } }
+</style>
+
+<!-- PRICING -->
+<section class="s alt" id="pricing">
+  <div class="container">
+    <h2 class="s-title">Простые цены</h2>
+    <p class="s-sub">Без скрытых платежей. Без обязательств на год. Отмена в любой момент.</p>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="plan">Starter</div>
+        <div class="amount">₸ 69 000</div>
+        <div class="period">/ месяц</div>
+        <div class="desc">Для одного тендер-менеджера или небольшой команды.</div>
+        <ul>
+          <li>Утренний email-дайджест каждое утро</li>
+          <li>Топ-10 релевантных тендеров</li>
+          <li>1 профиль компании</li>
+          <li>Все казахстанские площадки</li>
+          <li>Self-onboarding по чек-листу</li>
+          <li class="dash">Web-дашборд</li>
+          <li class="dash">Pre-tender alerts</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline" style="text-align: center;">Начать</a>
+      </div>
+      <div class="price-card featured">
+        <div class="plan">Pro</div>
+        <div class="amount">₸ 189 000</div>
+        <div class="period">/ месяц</div>
+        <div class="desc">Для растущих интеграторов с командой тендер-менеджеров.</div>
+        <ul>
+          <li>Всё из Starter</li>
+          <li>Web-дашборд с фильтрами</li>
+          <li>До 5 пользователей</li>
+          <li>До 3 профилей (разные направления)</li>
+          <li>Интеграция с AmoCRM / Bitrix</li>
+          <li>Domain-warnings (banking, ERP)</li>
+          <li>Приоритетная поддержка</li>
+        </ul>
+        <a href="#cta" class="btn btn-primary" style="text-align: center;">Запустить пилот</a>
+      </div>
+      <div class="price-card">
+        <div class="plan">Enterprise</div>
+        <div class="amount">от ₸ 590 000</div>
+        <div class="period">/ месяц</div>
+        <div class="desc">Для крупных интеграторов и квазигоссектора.</div>
+        <ul>
+          <li>Всё из Pro</li>
+          <li>Неограниченно пользователей</li>
+          <li>Pre-tender alerts (план закупок)</li>
+          <li>Конкурентная карта рынка</li>
+          <li>API-доступ для интеграции</li>
+          <li>Кастомные правила и фильтры</li>
+          <li>Выделенный success-менеджер</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline" style="text-align: center;">Обсудить условия</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="s" id="cta">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Получите свой первый дайджест за 3 рабочих дня</h2>
+      <p>Пришлите 2–3 ваших успешных тендера — мы соберём профиль компании и неделю будем присылать утренние дайджесты бесплатно. Если экономия времени и качество подбора устроят — переходим на подписку.</p>
+      <a href="mailto:hello@tenderassist.kz?subject=Хочу%20пилот%20TenderAssist" class="btn">Написать на hello@tenderassist.kz</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="s alt">
+  <div class="container">
+    <h2 class="s-title">Частые вопросы</h2>
+    <div class="faq" style="margin-top: 32px;">
+      <details>
+        <summary>А если тендер «уже под кого-то» — какой смысл его подавать?</summary>
+        <p>Не все тендеры заранее «расписаны». В IT-категории много мест: AWS Reselling, срочные мелкие лоты, технически сложные нишевые проекты — там конкуренция реальная. TenderAssist специально учится распознавать признаки «заточки» под конкретного поставщика и помечает такие тендеры ⚠️, чтобы вы не тратили на них время.</p>
+      </details>
+      <details>
+        <summary>Какие площадки вы мониторите?</summary>
+        <p>На запуске: goszakup.gov.kz (главный, через официальное API), Самрук-Казына (zakup.sk.kz), MITWORK. В планах: коммерческие площадки (ETS Tender и др.). Если вам нужна конкретная — добавим.</p>
+      </details>
+      <details>
+        <summary>Что нужно от меня, чтобы запустить?</summary>
+        <p>Полчаса интервью с тендер-менеджером (мы пройдём по 8 блокам: услуги, индустрии, бюджет, ограничения), 5–10 ссылок на ваши прошлые победы и 2–3 проигрыша. Этого хватит, чтобы собрать профиль качества, на котором precision выходит на 70%+ за первую неделю.</p>
+      </details>
+      <details>
+        <summary>Что если ИИ ошибся и пропустил «мой» тендер?</summary>
+        <p>В дайджесте есть кнопки «✅ Беру / ❌ Не релевантно» — система учится на ваших действиях. Раз в неделю мы делаем калибровку и улучшаем профиль. После двух недель работы precision стабилизируется на 80%+.</p>
+      </details>
+      <details>
+        <summary>А мои данные не утекут? У нас коммерческая тайна.</summary>
+        <p>Ваш профиль (выигранные тендеры, услуги, ограничения) хранится только у нас. Мы не передаём его другим клиентам, не публикуем в открытых источниках и не используем для обучения общих моделей. Подписываем NDA перед стартом пилота.</p>
+      </details>
+      <details>
+        <summary>Можно ли подключить мою CRM (AmoCRM, Bitrix24)?</summary>
+        <p>Да, на тарифе Pro и выше. Релевантные тендеры автоматически создаются как сделки в воронке «Тендеры» вашего CRM, с ссылкой, ТЗ и оценкой релевантности.</p>
+      </details>
+      <details>
+        <summary>Платный токен goszakup — это вы покупаете или мы?</summary>
+        <p>Это мы. У TenderAssist собственный production-токен от АО «Центр электронных финансов» с правами на чтение реестра. От вас ничего технического не требуется — только информация о вашей компании.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div>© 2026 TenderAssist · Все права защищены</div>
+    <div>
+      <a href="mailto:hello@tenderassist.kz">hello@tenderassist.kz</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
